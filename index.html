@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>تاك بلص — سوق الأسهم السعودية</title>
+
+  <!-- سياسة أمان مناسبة للملفات المحلية (inline مسموح لأسلوبك) -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; form-action 'self'; base-uri 'self'">
+
+  <meta name="description" content="تاك بلص — موقع مخصص لمتابعة سوق الأسهم في السعودية: مؤشر تاسي، الأسهم القيادية، وقائمة مراقبة ذكية.">
+  <meta name="theme-color" content="#0DB760">
+
+  <style>
+    :root{
+      --bg:#0b0f14; --panel:#0f1520; --panel2:#121821;
+      --ink:#eaf2ff; --muted:#97a6bd; --saudi:#0DB760; --accent:#2dd4bf;
+      --ok:#22c55e; --down:#ef4444; --ring:#1f2937;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:radial-gradient(80% 60% at 50% -10%, rgba(13,183,96,.08), transparent), var(--bg);
+         color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Kufi Arabic',Tahoma,Arial}
+    .container{max-width:1200px;margin:auto;padding:10px 16px}
+    .hero{
+      display:grid;gap:14px;padding:24px 16px;margin-top:8px;border-radius:18px;
+      background:
+        linear-gradient(180deg, rgba(45,212,191,.08), transparent 60%),
+        linear-gradient(120deg, rgba(13,183,96,.12), transparent 50%),
+        var(--panel);
+      border:1px solid #0f1622;
+    }
+    .hero h1{margin:0;font-size:clamp(24px,4vw,42px);line-height:1.2}
+    .hero p{margin:0;color:var(--muted)}
+    .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .card{
+      background:var(--panel2);border:1px solid #0f1622;border-radius:16px;padding:14px;min-height:88px;
+      display:flex;flex-direction:column;gap:8px
+    }
+    .k{font-size:13px;color:var(--muted)}
+    .v{font-size:20px;font-weight:800}
+    .up{color:var(--ok)} .down{color:var(--down)}
+
+    /* شريط الأسعار */
+    .tickerWrap{overflow:hidden;border:1px solid #0f1622;border-radius:14px;background:#0e1522}
+    .ticker{display:flex;gap:28px;padding:10px;animation:scroll 28s linear infinite}
+    @keyframes scroll{from{transform:translateX(10%)} to{transform:translateX(-100%)}}
+    .tick{display:flex;gap:8px;align-items:baseline;white-space:nowrap}
+    .sym{font-weight:800}
+    .chg{font-weight:700}
+
+    /* جدول المراقبة */
+    .panel{background:var(--panel);border:1px solid #0f1622;border-radius:16px;padding:12px}
+    table{width:100%;border-collapse:separate;border-spacing:0}
+    thead th{font-size:13px;color:var(--muted);text-align:right;padding:10px}
+    tbody td{padding:12px 10px;border-top:1px solid #0f1622}
+    tbody tr:hover{background:#0d1420}
+    .tag{font-size:11px;color:#eafff4;background:rgba(13,183,96,.12);border:1px solid #124f37;border-radius:999px;padding:4px 8px}
+
+    /* sparklines */
+    .spark{width:120px;height:36px}
+
+    /* استدعاء القوالب */
+    #headerMount, #footerMount{min-height:1px}
+
+    @media (max-width:900px){
+      .cards{grid-template-columns:1fr 1fr}
+      .spark{display:none}
+    }
+  </style>
+</head>
+<body>
+  <!-- استدعاء القوالب: لا نضمّن الهيدر والفوتر هنا -->
+  <div id="headerMount"></div>
+
+  <main class="container">
+    <section class="hero" id="market">
+      <h1>تابع <span style="color:#c9ffe3">سوق الأسهم السعودية</span> بواجهة سريعة وخفيفة</h1>
+      <p>مؤشر <strong>TASI</strong> والأسهم القيادية — تحديثات لحظية تجريبية، وقائمة مراقبة قابلة للتخصيص محليًا.</p>
+      <div class="cards" role="list">
+        <div class="card" role="listitem">
+          <span class="k">مؤشر TASI</span>
+          <span class="v" id="tasiVal">—</span>
+          <span class="k" id="tasiChg">—</span>
+        </div>
+        <div class="card" role="listitem">
+          <span class="k">القيمة السوقية (تجريبية)</span>
+          <span class="v" id="mcap">—</span>
+          <span class="k">تقدير مبسط</span>
+        </div>
+        <div class="card" role="listitem">
+          <span class="k">الأعلى اليوم</span>
+          <span class="v" id="hi">—</span>
+          <span class="k">محاكاة</span>
+        </div>
+        <div class="card" role="listitem">
+          <span class="k">الأدنى اليوم</span>
+          <span class="v" id="lo">—</span>
+          <span class="k">محاكاة</span>
+        </div>
+      </div>
+    </section>
+
+    <section aria-label="شريط الأسعار">
+      <div class="tickerWrap" style="margin-top:14px">
+        <div class="ticker" id="ticker">
+          <!-- يُملأ بالـ JS -->
+        </div>
+      </div>
+    </section>
+
+    <section id="watchlist" style="margin-top:16px">
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+          <h2 style="margin:4px 0">قائمة المراقبة</h2>
+          <div>
+            <input id="symInput" placeholder="أضف رمز (مثال: 2222)" style="background:#0b1220;border:1px solid #142033;border-radius:10px;padding:8px 10px;color:#eaf2ff">
+            <button id="addBtn" style="background:#0DB760;border:none;border-radius:10px;padding:8px 12px;color:#00250e;font-weight:800">إضافة</button>
+          </div>
+        </div>
+
+        <div style="overflow:auto">
+          <table aria-describedby="watchlist">
+            <thead>
+              <tr>
+                <th>الشركة</th>
+                <th>الرمز</th>
+                <th>السعر</th>
+                <th>التغير</th>
+                <th>نسبة</th>
+                <th>حركة</th>
+                <th>إجراء</th>
+              </tr>
+            </thead>
+            <tbody id="rows">
+              <!-- صفوف افتراضية -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="news" style="margin-top:18px">
+      <div class="panel">
+        <h2 style="margin-top:0">ملاحظات مهمة</h2>
+        <ul style="margin-top:8px; color:var(--muted)">
+          <li>البيانات هنا <strong>محاكاة تعليمية</strong> لأغراض التصميم فقط. لأرقام حقيقية، اربط لاحقًا بواجهات برمجية مرخّصة عبر <em>HTTPS</em> وتحقّق من صحة الإدخالات.</li>
+          <li>حافظ على الأسرار (مفاتيح API) في ملف <code>.env</code> مضاف للـ <code>.gitignore</code>.</li>
+          <li>اختبارات وحدة: يمكنك لاحقًا إضافة ملف <code>watchlist.test.js</code> لاختبار دوال المحاكاة.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="open-account" style="margin:18px 0">
+      <div class="panel" style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
+        <div>
+          <h3 style="margin:0 0 6px">ابدأ بتجربة تاك بلص</h3>
+          <p style="margin:0;color:var(--muted)">واجهة أنيقة، سريعة، وتعمل على الجوال والكمبيوتر.</p>
+        </div>
+        <button onclick="alert('تجربة وهمية — اربط بنموذج حقيقي لاحقًا')" style="background:linear-gradient(90deg,var(--saudi),#16a34a);color:#00250e;font-weight:900;border:none;border-radius:12px;padding:12px 16px">إنشاء حساب تجريبي</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="footerMount"></div>
+
+  <script>
+    /* =========================
+       1) استدعاء الهيدر والفوتر
+       ========================= */
+    async function mount(part, elId){
+      try{
+        const res = await fetch(part, {cache:'no-store'});
+        if(!res.ok) throw new Error('HTTP '+res.status);
+        document.getElementById(elId).innerHTML = await res.text();
+      }catch(err){
+        console.error('فشل استدعاء', part, err);
+        document.getElementById(elId).innerHTML = '<div class="container" style="color:#fca5a5">تعذر تحميل المكوّن: '+part+'</div>';
+      }
+    }
+    // المسارات بحسب بنية مجلدك الحالية (نفس المستوى)
+    mount('./header.html','headerMount');
+    mount('./footer.html','footerMount');
+
+    /* =========================
+       2) نموذج بيانات محاكي للسوق
+       ========================= */
+    const seed = [
+      {name:'أرامكو', sym:'2222', price:30.80, spark:[30.6,30.7,30.62,30.75,30.80]},
+      {name:'الراجحي', sym:'1120', price:88.20, spark:[87.9,88.1,88.05,88.2,88.2]},
+      {name:'STC', sym:'7010', price:45.10, spark:[44.9,45.0,45.05,45.1,45.1]},
+      {name:'سابك', sym:'2010', price:77.40, spark:[77.1,77.2,77.3,77.4,77.4]},
+      {name:'تاسي', sym:'TASI', price:12100.0, spark:[12030,12060,12090,12110,12100]}
+    ];
+
+    // حفظ محلي لقائمة المراقبة
+    function loadList(){
+      try{
+        const raw = localStorage.getItem('watchlist');
+        return raw ? JSON.parse(raw) : seed.slice(0,4);
+      }catch{ return seed.slice(0,4) }
+    }
+    function saveList(list){
+      localStorage.setItem('watchlist', JSON.stringify(list));
+    }
+
+    // توليد حركة بسيطة
+    function tickOne(row){
+      const drift = (Math.random() - 0.5) * 0.4; // حركة بسيطة
+      row.price = +(row.price + drift).toFixed(2);
+      row.spark.push(row.price);
+      if(row.spark.length>20) row.spark.shift();
+      return row;
+    }
+
+    /* =========================
+       3) الرسم: sparkline بلا مكتبات
+       ========================= */
+    function drawSpark(canvas, series){
+      const w = canvas.width, h = canvas.height;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0,0,w,h);
+      const min = Math.min(...series), max = Math.max(...series);
+      const range = (max - min) || 1;
+      const pad = 3;
+      const step = (w - pad*2) / (series.length - 1);
+      ctx.lineWidth = 2;
+      // خط المسار
+      ctx.beginPath();
+      series.forEach((v,i)=>{
+        const x = pad + i*step;
+        const y = h - pad - ((v - min)/range) * (h - pad*2);
+        (i===0)?ctx.moveTo(x,y):ctx.lineTo(x,y);
+      });
+      ctx.strokeStyle = '#2dd4bf';
+      ctx.stroke();
+      // نقطة أخيرة
+      const last = series[series.length-1];
+      const x = pad + (series.length-1)*step;
+      const y = h - pad - ((last - min)/range) * (h - pad*2);
+      ctx.fillStyle = '#0DB760';
+      ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fill();
+    }
+
+    /* =========================
+       4) بناء الشريط والجدول
+       ========================= */
+    const rowsEl = document.getElementById('rows');
+    const tickerEl = document.getElementById('ticker');
+
+    function rowHTML(o, idx){
+      const chg = +(o.spark.at(-1) - o.spark.at(-2) || 0).toFixed(2);
+      const pct = +((chg / (o.spark.at(-2) || o.spark.at(-1))) * 100).toFixed(2);
+      const cClass = chg >= 0 ? 'up' : 'down';
+      return `
+        <tr data-idx="${idx}">
+          <td><strong>${o.name}</strong> <span class="tag">سعودي</span></td>
+          <td>${o.sym}</td>
+          <td>${o.price.toFixed(2)}</td>
+          <td class="${cClass}">${chg>=0?'+':''}${chg}</td>
+          <td class="${cClass}">${pct>=0?'+':''}${pct}%</td>
+          <td><canvas class="spark" width="120" height="36"></canvas></td>
+          <td><button data-del="${idx}" style="background:#1f2937;color:#eaf2ff;border:1px solid #273445;border-radius:10px;padding:6px 10px">حذف</button></td>
+        </tr>
+      `;
+    }
+
+    function buildTicker(list){
+      tickerEl.innerHTML = '';
+      const top = [{name:'تاسي', sym:'TASI'}, ...list].slice(0,6);
+      top.forEach(o=>{
+        const last = o.spark?.at(-1) ?? o.price;
+        const prev = o.spark?.at(-2) ?? last;
+        const chg = +(last - prev).toFixed(2);
+        const pct = +((chg / (prev || last))*100).toFixed(2);
+        const c = chg>=0 ? 'up' : 'down';
+        const el = document.createElement('div');
+        el.className='tick';
+        el.innerHTML = `<span class="sym">${o.sym}</span>
+                        <span>${last.toFixed(2)}</span>
+                        <span class="${c} chg">${chg>=0?'+':''}${chg} (${pct>=0?'+':''}${pct}%)</span>`;
+        tickerEl.appendChild(el);
+      });
+    }
+
+    function render(){
+      const list = loadList();
+      rowsEl.innerHTML = list.map((o,i)=> rowHTML(o,i)).join('');
+      // ارسم الشرارات
+      rowsEl.querySelectorAll('tr').forEach((tr,i)=>{
+        const cnv = tr.querySelector('canvas');
+        drawSpark(cnv, list[i].spark);
+      });
+      buildTicker(list);
+      saveList(list);
+    }
+
+    // بطاقات المؤشر البسيطة
+    function renderCards(){
+      const tasi = seed.find(s=>s.sym==='TASI');
+      const last = tasi.spark.at(-1), prev = tasi.spark.at(-2) || last;
+      const chg = +(last - prev).toFixed(2);
+      const pct = +((chg/(prev||last))*100).toFixed(2);
+      const chgEl = document.getElementById('tasiChg');
+      document.getElementById('tasiVal').textContent = last.toFixed(2);
+      chgEl.textContent = `${chg>=0?'+':''}${chg} (${pct>=0?'+':''}${pct}%)`;
+      chgEl.className = (chg>=0)?'k up':'k down';
+
+      // تقديرات تجريبية
+      const hi = Math.max(...tasi.spark).toFixed(2);
+      const lo = Math.min(...tasi.spark).toFixed(2);
+      document.getElementById('hi').textContent = hi;
+      document.getElementById('lo').textContent = lo;
+      document.getElementById('mcap').textContent = (last*100_000_000).toLocaleString('ar-SA') + ' ر.س (تقريبي)';
+    }
+
+    // تحديث دوري محاكي
+    function loop(){
+      // حدّث البذور واللست
+      seed.forEach(tickOne);
+      const list = loadList().map(tickOne);
+      saveList(list);
+      render(); renderCards();
+    }
+
+    /* =========================
+       5) تفاعل: إضافة/حذف عناصر المراقبة
+       ========================= */
+    document.getElementById('addBtn').addEventListener('click', ()=>{
+      const inp = document.getElementById('symInput');
+      const sym = (inp.value||'').trim().toUpperCase();
+      if(!sym) return;
+      const list = loadList();
+      // إن كان موجودًا لا نكرر
+      if(list.some(x=>x.sym===sym)){ alert('الرمز موجود مسبقًا'); return; }
+      // عنصر جديد افتراضي
+      const base = {name:'سهم '+sym, sym, price: +(50+Math.random()*50).toFixed(2), spark:[50,52,51,53,52]};
+      list.push(base);
+      saveList(list);
+      inp.value='';
+      render();
+    });
+
+    rowsEl.addEventListener('click', (e)=>{
+      const del = e.target.getAttribute('data-del');
+      if(del!=null){
+        const idx = +del;
+        const list = loadList();
+        list.splice(idx,1);
+        saveList(list);
+        render();
+      }
+    });
+
+    /* =========================
+       6) تشغيل أولي
+       ========================= */
+    render(); renderCards();
+    setInterval(loop, 3500); // تحديث كل 3.5 ثانية (محاكاة)
+  </script>
+</body>
+</html>

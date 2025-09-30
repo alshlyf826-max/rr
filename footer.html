@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>تاك بلص — الشريط السفلي</title>
+
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
+
+  <style>
+    :root{
+      --bg:#0b0f14; --panel:#0f1520; --ink:#dfe9ff; --muted:#94a3b8; --saudi:#0DB760;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Kufi Arabic',Tahoma,Arial}
+    .foot{background:linear-gradient(0deg, rgba(13,183,96,.10), transparent 50%), var(--panel); color:var(--muted); border-top:1px solid #0f1622}
+    .wrap{max-width:1200px;margin:auto;padding:26px 16px}
+    .grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px}
+    h4{margin:6px 0 12px;color:var(--ink)}
+    a{color:inherit;text-decoration:none}
+    a:hover{color:#eafff4}
+    .brand{display:flex;align-items:center;gap:10px}
+    .logo{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:radial-gradient(60% 60% at 50% 50%, var(--saudi), #0a3d2b);color:#001a0f;font-weight:900}
+    .copy{border-top:1px solid #142033;margin-top:18px;padding-top:12px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+    .field{display:flex;gap:8px}
+    input[type="email"]{
+      background:#0b1220;border:1px solid #142033;border-radius:12px;padding:10px 12px;color:#eaf2ff;outline:none;width:100%;
+    }
+    button{
+      background:linear-gradient(90deg,var(--saudi),#16a34a); color:#00250e; border:none;border-radius:12px;padding:10px 12px;font-weight:800;cursor:pointer
+    }
+    @media (max-width:900px){ .grid{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <footer class="foot" id="contact">
+    <div class="wrap">
+      <div class="grid">
+        <div>
+          <div class="brand">
+            <span class="logo">+T</span><strong style="color:#eafff4">تاك بلص</strong>
+          </div>
+          <p style="margin-top:10px">منصّة سعودية لعرض بيانات السوق، مؤشرات لحظية، وقوائم مراقبة بسيطة للمستثمر اليومي.</p>
+        </div>
+
+        <div>
+          <h4>روابط</h4>
+          <a href="/#market">السوق</a><br>
+          <a href="/#news">الأخبار</a><br>
+          <a href="/#watchlist">قائمة المراقبة</a><br>
+          <a href="/#open-account">افتح محفظتك</a>
+        </div>
+
+        <div>
+          <h4>النشرة البريدية</h4>
+          <form id="newsForm">
+            <div class="field">
+              <input type="email" name="email" placeholder="بريدك الإلكتروني" required>
+              <button type="submit">اشتراك</button>
+            </div>
+            <small>نحترم خصوصيتك. لا رسائل مزعجة.</small>
+          </form>
+        </div>
+      </div>
+
+      <div class="copy">
+        <small>© <span id="year"></span> تاك بلص — جميع الحقوق محفوظة</small>
+        <small>صنع بحُب في السعودية</small>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // سنة تلقائية
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // منع إرسال حقيقي — مثال توست بسيط
+    (function(){
+      const f = document.getElementById('newsForm');
+      f.addEventListener('submit', (e)=>{
+        e.preventDefault();
+        const email = new FormData(f).get('email');
+        alert('تم الاشتراك: ' + email);
+        f.reset();
+      });
+    })();
+  </script>
+</body>
+</html>

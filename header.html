@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>تاك بلص — الشريط العلوي</title>
+
+  <!-- أمان (CSP): نكتفي بالملفات المحلية، ونسمح بالـ inline لأن الأسلوب لديك ملف واحد -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; form-action 'self'; base-uri 'self'">
+
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#121821;
+      --ink:#eaf2ff;
+      --muted:#9fb0c9;
+      --saudi:#0DB760;  /* أخضر سعودي */
+      --accent:#2dd4bf; /* فيروزي مالي */
+      --warn:#f59e0b;   /* برتقالي للتنبيه */
+      --danger:#ef4444; /* خسارة */
+      --ok:#22c55e;     /* مكسب */
+      --ring:#1f2937;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Kufi Arabic',Tahoma,Arial}
+    a{color:inherit;text-decoration:none}
+    .nav{
+      background:linear-gradient(180deg, rgba(13,183,96,0.12), transparent 55%), var(--panel);
+      border-bottom:1px solid #0f1520;
+      position:sticky;top:0;z-index:50;
+    }
+    .wrap{max-width:1200px;margin:auto;padding:10px 16px;display:flex;align-items:center;gap:12px}
+    .brand{
+      display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.5px;
+      color:var(--ink)
+    }
+    .logo{
+      width:34px;height:34px;display:grid;place-items:center;border-radius:10px;
+      background:radial-gradient(60% 60% at 50% 50%, var(--saudi), #0a3d2b);
+      box-shadow:0 0 0 1px #124f37, 0 6px 16px rgba(13,183,96,.25);
+      color:#001a0f;font-weight:900
+    }
+    .menu{margin-inline-start:auto;display:flex;gap:8px;align-items:center}
+    .menu a{
+      color:var(--muted);padding:10px 12px;border-radius:12px;transition:150ms;
+    }
+    .menu a:hover{color:var(--ink);background:#0f1622}
+    .menu a.active{color:#d9ffe8;background:rgba(13,183,96,.12);box-shadow:inset 0 0 0 1px #124f37}
+    .cta{
+      background:linear-gradient(90deg,var(--saudi),#16a34a);
+      color:#00250e;font-weight:800;border:none;padding:10px 14px;border-radius:14px;
+      box-shadow:0 8px 18px rgba(13,183,96,.25);cursor:pointer
+    }
+    .hamb{display:none}
+    @media (max-width:900px){
+      .menu{display:none}
+      .hamb{display:inline-flex;margin-inline-start:auto}
+      .drawer{display:none;flex-direction:column;padding:10px}
+      .drawer a{padding:12px;border-radius:12px;color:var(--muted)}
+      .drawer a:hover{background:#0f1622;color:var(--ink)}
+      .drawer.open{display:flex}
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="wrap">
+      <a class="brand" href="/">
+        <span class="logo">+T</span>
+        <span>تاك بلص</span>
+      </a>
+
+      <div class="menu" aria-label="القائمة الرئيسية">
+        <a href="/#market" data-link>السوق</a>
+        <a href="/#news" data-link>الأخبار</a>
+        <a href="/#watchlist" data-link>قائمة المراقبة</a>
+        <a href="/#contact" data-link>تواصل</a>
+        <button class="cta" onclick="location.href='/#open-account'">افتح محفظتك</button>
+      </div>
+
+      <button class="hamb cta" id="hamb" aria-label="فتح القائمة">القائمة</button>
+    </div>
+
+    <div class="wrap">
+      <div class="drawer" id="drawer" aria-label="قائمة الجوال">
+        <a href="/#market" data-link>السوق</a>
+        <a href="/#news" data-link>الأخبار</a>
+        <a href="/#watchlist" data-link>قائمة المراقبة</a>
+        <a href="/#contact" data-link>تواصل</a>
+      </div>
+    </div>
+  </nav>
+
+  <script>
+    // إبراز الرابط النشط حسب الهاش
+    (function(){
+      const hash = location.hash || '#market';
+      document.querySelectorAll('[data-link]').forEach(a=>{
+        if(a.getAttribute('href').endsWith(hash)) a.classList.add('active');
+      });
+    })();
+
+    // قائمة الجوال
+    (function(){
+      const btn = document.getElementById('hamb');
+      const drawer = document.getElementById('drawer');
+      if(btn && drawer){
+        btn.addEventListener('click', ()=> drawer.classList.toggle('open'));
+        // إغلاق عند اختيار رابط
+        drawer.querySelectorAll('a').forEach(a=>{
+          a.addEventListener('click', ()=> drawer.classList.remove('open'));
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
